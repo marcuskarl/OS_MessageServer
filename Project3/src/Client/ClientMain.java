@@ -1,6 +1,6 @@
-package Project3;
+package Client;
 
-public class Main {
+public class ClientMain {
 
 	
 	public static void main(String [] args) {
