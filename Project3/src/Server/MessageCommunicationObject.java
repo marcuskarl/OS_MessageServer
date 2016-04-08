@@ -7,17 +7,8 @@ public class MessageCommunicationObject {
 	private String toUserName = new String();
 	private String fromUserName = new String();
 	private String userMsg = new String();
-	private boolean closeConnection = false;
 	private LocalDateTime dateAndTime = null;
 	private int userOption = 0;
-	
-	public void setCloseConection (boolean con) {
-		closeConnection = con;
-	}
-	
-	public boolean getCloseConnection() {
-		return closeConnection;
-	}
 	
 	public void setToUserName(String name) {
 		toUserName = name;
