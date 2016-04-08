@@ -32,17 +32,14 @@ public class ServerMain {
 					executor.execute(clientThread);
 					out.write(clientComm);
 					
-				}
-				finally {
-					clientComm += 2;
+				} finally {
+					clientComm++;
 					clientSocket.close();
 				}
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			System.out.println(ex);
-		}
-		finally {
+		} finally {
 			serverSocket.close();
 		}
 	}
