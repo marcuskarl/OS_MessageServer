@@ -31,7 +31,6 @@ public class ServerMain {
 					PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 					executor.execute(clientThread);
 					out.write(clientComm);
-					
 				} finally {
 					clientComm++;
 					clientSocket.close();
