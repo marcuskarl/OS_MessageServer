@@ -2,7 +2,7 @@ package Server;
 
 import java.time.LocalDateTime;
 
-public class MessageCommunicationObject {
+public class MsgCommObj {
 	
 	private String toUserName = new String();
 	private String fromUserName = new String();

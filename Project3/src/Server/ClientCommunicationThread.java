@@ -22,7 +22,7 @@ public class ClientCommunicationThread implements Runnable {
 		Socket clientSocket = null;
 		int userIndex = -1;
 		
-		MessageCommunicationObject msg = null;
+		MsgCommObj msg = null;
 		
 		try {
 			listenSocket = new ServerSocket(clientCommPort);
@@ -31,7 +31,7 @@ public class ClientCommunicationThread implements Runnable {
 			ObjectInputStream in = new ObjectInputStream( clientSocket.getInputStream() );
 			ObjectOutputStream out = new ObjectOutputStream( clientSocket.getOutputStream()) ;
 			
-			msg = (MessageCommunicationObject) in.readObject();
+			msg = (MsgCommObj) in.readObject();
 			
 			userIndex = msgQueues.getUserIndex( msg.getFromUserName() );
 			
@@ -45,7 +45,7 @@ public class ClientCommunicationThread implements Runnable {
 				
 				// If userIndex is still -1, unable to add user, will send message to client and exit
 				if ( userIndex == -1 ) {
-					MessageCommunicationObject reply = new MessageCommunicationObject();
+					MsgCommObj reply = new MsgCommObj();
 					reply.setToUserName(msg.getFromUserName());
 					reply.setUserMsg("Server user list is full, unable to accept new users.");
 					reply.setUserOption( -99 );
@@ -73,7 +73,7 @@ public class ClientCommunicationThread implements Runnable {
 	
 	public void sendStoredMessagesToUser(int userIndex, ObjectOutputStream out) {
 		
-		MessageCommunicationObject msg = msgQueues.getMessage(userIndex);
+		MsgCommObj msg = msgQueues.getMessage(userIndex);
 		
 		while (msg != null) {
 			
@@ -88,7 +88,7 @@ public class ClientCommunicationThread implements Runnable {
 			msg = msgQueues.getMessage(userIndex);
 		}
 		
-		MessageCommunicationObject noMoreMessages = new MessageCommunicationObject();
+		MsgCommObj noMoreMessages = new MsgCommObj();
 		
 		// Sets user option to -1 as flag of no more messages
 		noMoreMessages.setUserOption( -1 );
@@ -100,7 +100,7 @@ public class ClientCommunicationThread implements Runnable {
 		}
 	}
 	
-	public boolean sendMessageToAnotherUser(MessageCommunicationObject msg) {
+	public boolean sendMessageToAnotherUser(MsgCommObj msg) {
 		
 		return msgQueues.sendMessage(msg);
 	}
@@ -108,7 +108,7 @@ public class ClientCommunicationThread implements Runnable {
 	public boolean decisionBranch(int userIndex, ObjectInputStream in, ObjectOutputStream out) {
 		
 		try {
-			MessageCommunicationObject msg = (MessageCommunicationObject) in.readObject();
+			MsgCommObj msg = (MsgCommObj) in.readObject();
 			
 			int userOption = msg.getUserOption();
 			

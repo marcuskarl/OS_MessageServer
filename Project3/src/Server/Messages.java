@@ -6,12 +6,12 @@ import java.util.concurrent.Semaphore;
 public class Messages {
 	
 	private class UserMailBox {
-		private LinkedList<MessageCommunicationObject> userMessage = null;
+		private LinkedList<MsgCommObj> userMessage = null;
 		private String userName = null;
 		private Semaphore addMessageSemaphore = new Semaphore(1, true);
 		
 		UserMailBox() {
-			userMessage = new LinkedList<MessageCommunicationObject>();
+			userMessage = new LinkedList<MsgCommObj>();
 		}
 		
 		public String getUserName() {
@@ -22,11 +22,11 @@ public class Messages {
 			userName = name;
 		}
 		
-		public MessageCommunicationObject getMessage() {
+		public MsgCommObj getMessage() {
 			return userMessage.poll();
 		}
 		
-		public void addMessage(MessageCommunicationObject msg) {
+		public void addMessage(MsgCommObj msg) {
 			msg.setDateTime();			// Sets time stamp to server date and time
 			try {
 				addMessageSemaphore.acquire();
@@ -79,7 +79,7 @@ public class Messages {
 		return -1; 	// Returns -1 for user not found
 	}
 	
-	public boolean sendMessage(MessageCommunicationObject msg) {
+	public boolean sendMessage(MsgCommObj msg) {
 		
 		for (int i = 0; i < 100; i++) {
 			if ( userMailBoxes[i].getUserName().equals(msg.getToUserName()) ) {
@@ -91,7 +91,7 @@ public class Messages {
 		return false;
 	}
 	
-	public MessageCommunicationObject getMessage(int index) {
+	public MsgCommObj getMessage(int index) {
 		if (index >= 0 && index < 100)
 			return userMailBoxes[index].getMessage();
 		else
