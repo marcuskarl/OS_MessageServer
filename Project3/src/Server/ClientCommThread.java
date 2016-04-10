@@ -6,12 +6,12 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ClientCommunicationThread implements Runnable {
+public class ClientCommThread implements Runnable {
 	
 	private int clientCommPort;
 	private Messages msgQueues = null;
 	
-	public ClientCommunicationThread (Messages msgQ, int clientPort) {
+	public ClientCommThread (Messages msgQ, int clientPort) {
 		clientCommPort = clientPort;
 		msgQueues = msgQ;
 	}
@@ -22,8 +22,6 @@ public class ClientCommunicationThread implements Runnable {
 		Socket clientSocket = null;
 		int userIndex = -1;
 		
-		MsgCommObj msg = null;
-		
 		try {
 			listenSocket = new ServerSocket(clientCommPort);
 			clientSocket = listenSocket.accept();
@@ -31,32 +29,10 @@ public class ClientCommunicationThread implements Runnable {
 			ObjectInputStream in = new ObjectInputStream( clientSocket.getInputStream() );
 			ObjectOutputStream out = new ObjectOutputStream( clientSocket.getOutputStream()) ;
 			
-			msg = (MsgCommObj) in.readObject();
-			
-			userIndex = msgQueues.getUserIndex( msg.getFromUserName() );
-			
-			// Sends any stored messages to the user, if record exist
-			if (userIndex != -1)
-				sendStoredMessagesToUser(userIndex, out);
-			
-			// User name doesn't exist, adding new user
-			if ( userIndex == -1 ) {
-				userIndex = msgQueues.newUser(msg.getFromUserName());
-				
-				// If userIndex is still -1, unable to add user, will send message to client and exit
-				if ( userIndex == -1 ) {
-					MsgCommObj reply = new MsgCommObj();
-					reply.setToUserName(msg.getFromUserName());
-					reply.setUserMsg("Server user list is full, unable to accept new users.");
-					reply.setUserOption( -99 );
-					out.writeObject(reply);
-					return;
-				}
-			}
-			
+			// Loops until client sends exit command
 			while (decisionBranch(userIndex, in, out)) ;
 			
-		} catch (IOException | ClassNotFoundException ex) {
+		} catch (IOException ex) {
 			System.out.println(ex);
 		} finally {
 			try {
@@ -107,15 +83,52 @@ public class ClientCommunicationThread implements Runnable {
 	
 	public boolean decisionBranch(int userIndex, ObjectInputStream in, ObjectOutputStream out) {
 		
+		MsgCommObj msg = null;
+		
 		try {
-			MsgCommObj msg = (MsgCommObj) in.readObject();
+			msg = (MsgCommObj) in.readObject();
 			
-			int userOption = msg.getUserOption();
+			if (userIndex == -1)
+				userIndex = msgQueues.getUserIndex( msg.getFromUserName() );
+						
+			// Sends any stored messages to the user, if record exist
+			if (userIndex != -1)
+				sendStoredMessagesToUser(userIndex, out);
 			
-			switch (userOption) {
+			// User name doesn't exist, adding new user
+			if ( userIndex == -1 ) {
+				userIndex = msgQueues.newUser(msg.getFromUserName());
+				
+				// If userIndex is still -1, unable to add user, will send message to client and exit
+				if ( userIndex == -1 ) {
+					MsgCommObj reply = new MsgCommObj();
+					reply.setToUserName(msg.getFromUserName());
+					reply.setUserMsg("Server user list is full, unable to accept new users.");
+					reply.setUserOption( -99 );
+					out.writeObject(reply);
+					return false;
+				}
+			}
+			
+			switch ( msg.getUserOption() ) {
 			case 1: sendStoredMessagesToUser(userIndex, out);
 				break;
-			case 2: sendMessageToAnotherUser(msg);
+			case 2: if ( sendMessageToAnotherUser(msg) ) {
+				// Message was sent
+				MsgCommObj reply = new MsgCommObj();
+				reply.setToUserName(msg.getFromUserName());
+				reply.setUserMsg("Message sent.");
+				reply.setUserOption( 98 );
+				out.writeObject(reply);
+			}
+			else {
+				// If user was not found 
+				MsgCommObj reply = new MsgCommObj();
+				reply.setToUserName(msg.getFromUserName());
+				reply.setUserMsg("User does not exist.");
+				reply.setUserOption( -98 );
+				out.writeObject(reply);
+			}				
 				break;
 			case -1: // If -1 is received, connection is terminated
 				return false;

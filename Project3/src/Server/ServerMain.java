@@ -27,7 +27,7 @@ public class ServerMain {
 			while(clientComm < 65536) {
 				try {
 					clientSocket = serverSocket.accept();
-					ClientCommunicationThread clientThread = new ClientCommunicationThread(msgQueues, clientComm);
+					ClientCommThread clientThread = new ClientCommThread(msgQueues, clientComm);
 					PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 					executor.execute(clientThread);
 					out.write(clientComm);
