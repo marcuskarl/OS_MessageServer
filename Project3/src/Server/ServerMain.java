@@ -1,9 +1,11 @@
 package Server;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -20,17 +22,18 @@ public class ServerMain {
 		Socket clientSocket = null;
 		
 		try {
-			serverSocket = new ServerSocket(listenPortNumber);
+			serverSocket = new ServerSocket(listenPortNumber, 100, InetAddress.getLocalHost());
+			
+			System.out.println(LocalDateTime.now() + "Server running on " + serverSocket.getLocalSocketAddress());
 			
 			ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-			
 			
 			ServerSocket getOpenPortForClientThread = null;
 			
 			while(true) {
 				try {
 					// Finds an open socket for any client connecting to use
-					getOpenPortForClientThread = new ServerSocket( 0 );
+					getOpenPortForClientThread = new ServerSocket(0, 1, InetAddress.getLocalHost());
 					
 					clientSocket = serverSocket.accept();
 					
@@ -39,9 +42,12 @@ public class ServerMain {
 					getOpenPortForClientThread.close();
 					
 					ClientCommThread clientThread = new ClientCommThread(msgQueues, clientComm);
-					ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+					DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 					executor.execute(clientThread);
 					out.writeInt(clientComm);
+					
+					out.flush();
+					out.close();
 				} finally {
 					clientSocket.close();
 				}

@@ -3,6 +3,8 @@ package Server;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 
+import Shared.MsgCommObj;
+
 public class Messages {
 	
 	private class UserMailBox {
@@ -11,8 +13,9 @@ public class Messages {
 		private Semaphore addMessageSemaphore = new Semaphore(1, true);
 		private boolean currentlyConnected = false;
 		
-		UserMailBox() {
+		public UserMailBox() {
 			userMessage = new LinkedList<MsgCommObj>();
+			userName = new String();
 		}
 		
 		public String getUserName() {
@@ -53,7 +56,7 @@ public class Messages {
 	public Messages () {
 		userMailBoxes = new UserMailBox[100];
 		
-		for (int i = 100; i < 100; i++)
+		for (int i = 0; i < 100; i++)
 			userMailBoxes[i] = new UserMailBox();
 	}
 	
