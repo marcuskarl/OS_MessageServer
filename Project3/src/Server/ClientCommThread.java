@@ -147,7 +147,7 @@ public class ClientCommThread implements Runnable {
 				break;
 			
 			case 5:
-				msgQueues.sendToAllConnectedUsers(msg);
+				msgQueues.sendToAllUsers(msg);
 				break;
 			
 			case 6:
