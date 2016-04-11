@@ -9,6 +9,7 @@ public class Messages {
 		private LinkedList<MsgCommObj> userMessage = null;
 		private String userName = null;
 		private Semaphore addMessageSemaphore = new Semaphore(1, true);
+		private boolean currentlyConnected = false;
 		
 		UserMailBox() {
 			userMessage = new LinkedList<MsgCommObj>();
@@ -35,6 +36,14 @@ public class Messages {
 			} catch (InterruptedException ex) {
 				System.out.println(ex);
 			}
+		}
+		
+		public void setConnectionStatus(boolean status) {
+			currentlyConnected = status;
+		}
+		
+		public boolean getConnectionStatus() {
+			return currentlyConnected;
 		}
 	}
 	
@@ -96,5 +105,63 @@ public class Messages {
 			return userMailBoxes[index].getMessage();
 		else
 			return null;
+	}
+	
+	public void setConnectionStatus(int index, boolean status) {
+		if (index >= 0 && index < 100) {
+			userMailBoxes[index].setConnectionStatus(status);
+		}
+	}
+	
+	public MsgCommObj getAllUsers() {
+		MsgCommObj msg = new MsgCommObj();
+		
+		msg.setFromUserName("Server.");
+		msg.setUserOption(0);
+		msg.setDateTime();
+		
+		StringBuilder allUsers = new StringBuilder();
+		
+		for (int i = 0; i < currentUserIndex; i++)
+			allUsers.append(userMailBoxes[i].getUserName() + "\n");
+		
+		msg.setUserMsg(allUsers.toString());
+		
+		return msg;
+	}
+	
+	public MsgCommObj getAllConnectedUsers() {
+		MsgCommObj msg = new MsgCommObj();
+		
+		msg.setFromUserName("Server.");
+		msg.setUserOption(0);
+		msg.setDateTime();
+		
+		StringBuilder connectedUsers = new StringBuilder();
+		
+		for (int i = 0; i < currentUserIndex; i++)
+			if ( userMailBoxes[i].getConnectionStatus() ) 
+				connectedUsers.append(userMailBoxes[i].getUserName() + "\n");
+		
+		msg.setUserMsg(connectedUsers.toString());
+		
+		return msg;
+	}
+	
+	public void sendToAllConnectedUsers(MsgCommObj msg) {
+		
+		msg.setDateTime();
+		
+		for (int i = 0; i < currentUserIndex; i++)
+			if ( userMailBoxes[i].getConnectionStatus() ) 
+				userMailBoxes[i].addMessage(msg);
+	}
+
+	public void sendToAllUsers(MsgCommObj msg) {
+		
+		msg.setDateTime();
+		
+		for (int i = 0; i < currentUserIndex; i++)
+			userMailBoxes[i].addMessage(msg);
 	}
 }

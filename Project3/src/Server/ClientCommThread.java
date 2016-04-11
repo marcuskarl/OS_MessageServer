@@ -30,7 +30,7 @@ public class ClientCommThread implements Runnable {
 			ObjectOutputStream out = new ObjectOutputStream( clientSocket.getOutputStream()) ;
 			
 			// Loops until client sends exit command
-			while (decisionBranch(userIndex, in, out)) ;
+			while (decisionBranch(userIndex, in, out));
 			
 		} catch (IOException ex) {
 			System.out.println(ex);
@@ -88,49 +88,74 @@ public class ClientCommThread implements Runnable {
 		try {
 			msg = (MsgCommObj) in.readObject();
 			
-			if (userIndex == -1)
+			if (userIndex == -1) {
 				userIndex = msgQueues.getUserIndex( msg.getFromUserName() );
-						
-			// Sends any stored messages to the user, if record exist
-			if (userIndex != -1)
-				sendStoredMessagesToUser(userIndex, out);
+				msgQueues.setConnectionStatus(userIndex, true);
+			}
 			
 			// User name doesn't exist, adding new user
 			if ( userIndex == -1 ) {
 				userIndex = msgQueues.newUser(msg.getFromUserName());
+				msgQueues.setConnectionStatus(userIndex, true);
 				
 				// If userIndex is still -1, unable to add user, will send message to client and exit
 				if ( userIndex == -1 ) {
 					MsgCommObj reply = new MsgCommObj();
 					reply.setToUserName(msg.getFromUserName());
 					reply.setUserMsg("Server user list is full, unable to accept new users.");
-					reply.setUserOption( -99 );
+					reply.setUserOption( -1 );
 					out.writeObject(reply);
 					return false;
 				}
 			}
 			
+			MsgCommObj reply = null;
+			
 			switch ( msg.getUserOption() ) {
-			case 1: sendStoredMessagesToUser(userIndex, out);
-				break;
-			case 2: if ( sendMessageToAnotherUser(msg) ) {
-				// Message was sent
-				MsgCommObj reply = new MsgCommObj();
-				reply.setToUserName(msg.getFromUserName());
-				reply.setUserMsg("Message sent.");
-				reply.setUserOption( 98 );
+			
+			case 1: 
+				reply = msgQueues.getAllUsers();
 				out.writeObject(reply);
-			}
-			else {
-				// If user was not found 
-				MsgCommObj reply = new MsgCommObj();
-				reply.setToUserName(msg.getFromUserName());
-				reply.setUserMsg("User does not exist.");
-				reply.setUserOption( -98 );
-				out.writeObject(reply);
-			}				
 				break;
-			case -1: // If -1 is received, connection is terminated
+			
+			case 2: 
+				reply = msgQueues.getAllConnectedUsers();
+				out.writeObject(reply);
+				break;
+			
+			case 3:
+				if ( sendMessageToAnotherUser(msg) ) {
+					// Message was sent
+					reply = new MsgCommObj();
+					reply.setToUserName(msg.getFromUserName());
+					reply.setUserMsg("Message sent.");
+					reply.setUserOption( 0 );
+					out.writeObject(reply);
+				}
+				else {
+					// If user was not found 
+					reply = new MsgCommObj();
+					reply.setToUserName(msg.getFromUserName());
+					reply.setUserMsg("User does not exist.");
+					reply.setUserOption( -99 );
+					out.writeObject(reply);
+				}
+				break;
+			
+			case 4:
+				msgQueues.sendToAllConnectedUsers(msg);
+				break;
+			
+			case 5:
+				msgQueues.sendToAllConnectedUsers(msg);
+				break;
+			
+			case 6:
+				sendStoredMessagesToUser(userIndex, out);
+				break;
+			
+			case 8: // If 7 is received, connection is terminated
+				msgQueues.setConnectionStatus(userIndex, false);
 				return false;
 			}
 		} catch (ClassNotFoundException | IOException ex) {
