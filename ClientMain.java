@@ -1,5 +1,6 @@
 //Andrew Robinson
 //Marcus Karl
+//Client program that gives functionality to client threads on server; Allows clients to send and recieve text messages through server
 
 package client;
 
@@ -29,13 +30,26 @@ public class ClientMain
         {
             //Write the user name to the server via the message object
             sStream.writeObject(msg);
+            msg = (MsgCommObj)cStream.readObject();
+            System.out.println(msg.getUserMsg() + "\n");
+            
+            if(msg.getUserOption() == -1)
+            {
+                return;
+            }
+            
         }
-        catch(IOException ex)
+        catch(IOException | ClassNotFoundException ex)
         {
             System.out.println("ERROR: " + ex);
         }
         
-        //Outer main menu loop ****
+        //Scanner for menu choices
+        Scanner menuScan = new Scanner(System.in);
+        //Scanner for options within menu choices
+        Scanner msgScan = new Scanner(System.in);
+        
+        //Main menu loop that runs until the client wants to exit and terminate connection
         do 
         {
             
@@ -52,11 +66,6 @@ public class ClientMain
             System.out.println("7. Read my messages.");
             System.out.println("8. Exit.");
             System.out.println();
-            
-            //Scanner for menu choices
-            Scanner menuScan = new Scanner(System.in);
-            //Scanner for options within menu choices
-            Scanner msgScan = new Scanner(System.in);
             
             //Loop to get user menu input
             do
@@ -80,6 +89,7 @@ public class ClientMain
                         sStream.writeObject(msg);
                         //Read message from server and display contents
                         msg = (MsgCommObj)cStream.readObject();
+                        System.out.println("All Known Users:");
                         System.out.println(msg.getUserMsg());
                         break;
                         
@@ -89,6 +99,7 @@ public class ClientMain
                         sStream.writeObject(msg);
                         //Read message from server and display contents
                         msg = (MsgCommObj)cStream.readObject();
+                        System.out.println("Connected Users:");
                         System.out.println(msg.getUserMsg());
                         break;
                         
@@ -154,7 +165,7 @@ public class ClientMain
                         //Decrement to account for post increment of messages -- do while last iteration will increment without receiving a new message
                         msgCount--;
                         //Prompt user amount of unread messages they have
-                        System.out.print("You have " + msgCount + " unread messages");
+                        System.out.println("You have " + msgCount + " unread messages");
                         System.out.println();
                         break;
                         
@@ -165,16 +176,25 @@ public class ClientMain
                         do
                         {
                             //Print all unread message from linked list with from user name and timestamp
+                            if(msgCount == 0)
+                            {
+                                System.out.println("You have no unread messages");
+                            }
+                            else
+                            {
+                                System.out.println("Unread Messages:");
+                            }
+                            
                             for(int i = 0; i < msgCount; i++)
                             {
                                 //Copy message at ith position from linked list
                                 msg = msgList.get(i);
                                 //Print reference menu number, From: field, and timestamp
-                                System.out.print((i+1) + ". From: " + msg.getFromUserName() + " at " + msg.getDateTime());
-                                System.out.println();
+                                System.out.println((i+1) + ". From: " + msg.getFromUserName() + " at " + msg.getDateTime());
                             }
                             
                             //Prompt user to input a menu number to read corresponding message
+                            System.out.println();
                             System.out.print("Enter number to display message or any other key to return to main menu: ");
                             //Get user input
                             msgNum = msgScan.nextInt();
@@ -185,7 +205,9 @@ public class ClientMain
                             {
                                 //Print the message requested and delete from linked list
                                 msg = msgList.remove(msgNum - 1);
-                                System.out.println(msg.getUserMsg());
+                                System.out.println("Message From " + msg.getFromUserName() + ": " + msg.getUserMsg());
+                                System.out.println();
+                                //Decrement unread messages
                                 msgCount--;
                             }
                         }
@@ -193,10 +215,10 @@ public class ClientMain
                         break;
 
                     case 8: //exit
+                        //Write menu choice to server
                         msg.setUserOption(menuChoice);
                         sStream.writeObject(msg);
-                        msgScan.close();
-                        menuScan.close();
+                        //Change menu loop condition to false
                         exit = true;
                 }
             }
@@ -206,20 +228,26 @@ public class ClientMain
             }
         } 
         while (!exit);
+        
+        //Close scanner objects
+        msgScan.close();
+        menuScan.close();
          
         System.out.println("Exiting");
     }
 
         public static void main(String[] args) 
         {
+            //***VARIABLE STUFF***
             String userName = null;
-            String server = "cs1";//args[0]
-            int port = 5002;//Integer.parseInt(args[1]);
+            String server = "cs1";//args[0];
+            int port = 5001;//Integer.parseInt(args[1]);
             InetAddress address;
             Socket serverConnection = null;
             ObjectInputStream cin = null;
             ObjectOutputStream sout = null;
-
+            
+            //If server command line argument is cs1 or cs2 set server name
             if(server.equals("cs1"))
                 server = "cs1.utdallas.edu";
             else if(server.equals("cs2"))
@@ -227,23 +255,28 @@ public class ClientMain
 
             try
             {
+                //Get the IP address of the server by the server name
                 address = InetAddress.getByName(server);
                 System.out.println("Connecting to: " + server + ":" + port + "....");
+                //Create socket using server IP address and command line input listening port number
                 serverConnection = new Socket(address, port);
                 
-                //System.out.println("Connection success!");
+                //Create stream to get assigned port number from server
                 DataInputStream cinPort = new DataInputStream(serverConnection.getInputStream());
-                 port = cinPort.readInt();
+                //Set client port number to new port number server sent
+                port = cinPort.readInt();
+                //Close the stream
                 cinPort.close();
                 
-                //System.out.println("Received port: " + port);
+                //Close initial socket using listening servr IP address and listening port
                 serverConnection.close();
+                //Open new socket using server IP address and assigned port
                 serverConnection = new Socket(server, port);
-                //System.out.println("Connected to new thread.");
                 
+                //Object stream to write message objects to server
                 sout = new ObjectOutputStream(serverConnection.getOutputStream());
-                //System.out.println("Created output stream.");
                 
+                //Object stream to read message objects from server
                 cin = new ObjectInputStream(serverConnection.getInputStream());
                 //System.out.println("Created input stream.");
                 
@@ -255,13 +288,16 @@ public class ClientMain
                 System.out.println("ERROR: " + ex);
             }
 
+            //Prompt client for user name
             System.out.print("Please enter a user name: ");
+            //Read in user input using scanner object
             Scanner scan = new Scanner(System.in);
             userName = scan.nextLine();
             System.out.println();
             
-        
+            //Function call for client/server menu and functionality
             userMenu(userName, cin, sout);
+            scan.close();
             
             try
             {
