@@ -2,7 +2,7 @@
 // Marcus Karl
 // Client program that gives functionality to client threads on server; Allows clients to send and recieve text messages through server
 
-package client;
+package Client;
 
 import Shared.MsgCommObj;
 import java.io.*;
@@ -16,8 +16,8 @@ public class ClientMain
     {
         int menuChoice = 0;
         int msgCount = 0;
-        //Linked list to hold the messages a user has recieved until they are read
-        LinkedList <MsgCommObj> msgList = new LinkedList();
+        //Linked list to hold the messages a user has received until they are read
+        LinkedList <MsgCommObj> msgList = new LinkedList<>();
         //Exit menu loop when user chooses option 8
         boolean exit = false;
         
