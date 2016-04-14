@@ -84,8 +84,12 @@ public class Messages {
 	public int getUserIndex(String name) {
 		
 		for (int i = 0; i < 100; i++) {
-			if ( userMailBoxes[i].getUserName().equals(name) )
-				return i; // Returns user index if found
+			if ( userMailBoxes[i].getUserName().equals(name) ) {
+				if (userMailBoxes[i].getConnectionStatus())
+					return -2;	// Returns -2, user name is already in use
+				else
+					return i; // Returns user index if found
+			}
 		}
 		
 		return -1; 	// Returns -1 for user not found
