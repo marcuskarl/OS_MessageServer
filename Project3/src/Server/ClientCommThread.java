@@ -3,38 +3,30 @@ package Server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalDateTime;
-
 import Shared.MsgCommObj;
 
 public class ClientCommThread implements Runnable {
-	
-	private int clientCommPort;
+	private Socket clientSocket = null;
 	private Messages msgQueues = null;
 	private int userIndex = -1;
 	
-	public ClientCommThread (Messages msgQ, int clientPort) {
-		clientCommPort = clientPort;
+	public ClientCommThread (Messages msgQ, Socket socket) {
+		clientSocket = socket;
 		msgQueues = msgQ;
 	}
 	
 	@Override
 	public void run() {
-		ServerSocket listenSocket = null;
-		Socket clientSocket = null;
-		
 		try {
-			listenSocket = new ServerSocket(clientCommPort, 1, InetAddress.getLocalHost());
-			clientSocket = listenSocket.accept();
-			
 			ObjectInputStream in = new ObjectInputStream( clientSocket.getInputStream() );
 			ObjectOutputStream out = new ObjectOutputStream( clientSocket.getOutputStream());
 			
 			// Loops until client sends exit command
 			while (decisionBranch(in, out));
+			in.close();
+			out.close();
 			
 		} catch (IOException ex) {
 			System.out.println(ex);
@@ -42,9 +34,6 @@ public class ClientCommThread implements Runnable {
 			try {
 				if (clientSocket != null)
 					clientSocket.close();
-				
-				if (listenSocket != null)
-					listenSocket.close();
 			} catch (IOException ex) {
 				System.out.println(ex);
 			}
