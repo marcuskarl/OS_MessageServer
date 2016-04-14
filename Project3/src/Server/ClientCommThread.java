@@ -69,18 +69,6 @@ public class ClientCommThread implements Runnable {
 		}
 	}
 	
-	public boolean sendMessageToAnotherUser(MsgCommObj msg) {
-		
-		if(msgQueues.sendMessage(msg))
-			return true;
-		else {
-			if (msgQueues.newUser(msg.getToUserName()) != -1)
-					return true;
-			else
-				return false;
-		}
-	}
-	
 	public boolean decisionBranch(ObjectInputStream in, ObjectOutputStream out) {
 		
 		MsgCommObj msg = null;
@@ -161,7 +149,7 @@ public class ClientCommThread implements Runnable {
 				break;
 			
 			case 3:
-				if ( sendMessageToAnotherUser(msg) ) {
+				if ( msgQueues.sendMessage(msg) ) {
 					// Message was sent
 					reply = new MsgCommObj();
 					reply.setToUserName(msg.getFromUserName());
@@ -175,11 +163,11 @@ public class ClientCommThread implements Runnable {
 					// If user was not found 
 					reply = new MsgCommObj();
 					reply.setToUserName(msg.getFromUserName());
-					reply.setUserMsg("User does not exist.");
+					reply.setUserMsg("Unable to send message to user.");
 					reply.setUserOption( -99 );
 					out.writeObject(reply);
 					System.out.println(LocalDateTime.now() + " " + msg.getFromUserName() 
-								+ " attempted to send message to unknown user " + msg.getToUserName());
+								+ " attempted to send message to unknown user, user list is full.");
 				}
 				break;
 			

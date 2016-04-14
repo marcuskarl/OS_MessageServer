@@ -103,7 +103,17 @@ public class Messages {
 			}
 		}
 		
-		return false;
+		// If at this point, could not find user, adds user to list
+		int addUser = newUser(msg.getToUserName());
+		
+		// If addUser is not -1, the new user was added to the server
+		if (addUser != -1) {
+			// Adds message to mailbox of new user
+			userMailBoxes[addUser].addMessage(msg);
+			return true;
+		}
+		else	// Returns false if unable to add user
+			return false;
 	}
 	
 	public MsgCommObj getMessage(int index) {
