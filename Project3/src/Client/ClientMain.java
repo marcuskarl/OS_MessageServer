@@ -30,6 +30,9 @@ public class ClientMain
         {
             //Write the user name to the server via the message object
             sStream.writeObject(msg);
+            
+            System.out.println("Sent name to server.");
+            
             msg = (MsgCommObj)cStream.readObject();
             System.out.println(msg.getUserMsg() + "\n");
             
@@ -148,22 +151,24 @@ public class ClientMain
                         //Set choice in message
                         msg.setUserOption(menuChoice);
                         
+                        //Write menu choice to server
+                        sStream.writeObject(msg);
+                        
                         //Loop to get messages from server as long as option in message recieved from server is zero 
                         do
                         {
-                            //Write menu choice to server
-                            sStream.writeObject(msg);
                             //Read message from server
                             msg = (MsgCommObj)cStream.readObject();
+                            
+                            if (msg.getUserOption() == 0) {
                             //Add message data to linked list
                             msgList.addLast(msg);
                             //increment count for total unread messages
                             msgCount++;
+                            }
                         }
                         while(msg.getUserOption()== 0);
                         
-                        //Decrement to account for post increment of messages -- do while last iteration will increment without receiving a new message
-                        msgCount--;
                         //Prompt user amount of unread messages they have
                         System.out.println("You have " + msgCount + " unread messages");
                         System.out.println();
@@ -175,7 +180,7 @@ public class ClientMain
                         //Loop to read messages while input is valid message menu number
                         do
                         {
-                            //Print all unread message from linked list with from user name and timestamp
+                            //Print all unread message from linked list with from user name and time stamp
                             if(msgCount == 0)
                             {
                                 System.out.println("You have no unread messages");
@@ -189,7 +194,7 @@ public class ClientMain
                             {
                                 //Copy message at ith position from linked list
                                 msg = msgList.get(i);
-                                //Print reference menu number, From: field, and timestamp
+                                //Print reference menu number, From: field, and time stamp
                                 System.out.println((i+1) + ". From: " + msg.getFromUserName() + " at " + msg.getDateTime());
                             }
                             
@@ -236,76 +241,63 @@ public class ClientMain
         System.out.println("Exiting");
     }
 
-        public static void main(String[] args) 
-        {
-            //***VARIABLE STUFF***
-            String userName = null;
-            String server = "cs1";//args[0];
-            int port = 5001;//Integer.parseInt(args[1]);
-            InetAddress address;
-            Socket serverConnection = null;
-            ObjectInputStream cin = null;
-            ObjectOutputStream sout = null;
-            
-            //If server command line argument is cs1 or cs2 set server name
-            if(server.equals("cs1"))
-                server = "cs1.utdallas.edu";
-            else if(server.equals("cs2"))
-                server = "cs2.utdallas.edu";
-
-            try
-            {
-                //Get the IP address of the server by the server name
-                address = InetAddress.getByName(server);
-                System.out.println("Connecting to: " + server + ":" + port + "....");
-                //Create socket using server IP address and command line input listening port number
-                serverConnection = new Socket(address, port);
-                
-                //Create stream to get assigned port number from server
-                DataInputStream cinPort = new DataInputStream(serverConnection.getInputStream());
-                //Set client port number to new port number server sent
-                port = cinPort.readInt();
-                //Close the stream
-                cinPort.close();
-                
-                //Close initial socket using listening servr IP address and listening port
-                serverConnection.close();
-                //Open new socket using server IP address and assigned port
-                serverConnection = new Socket(server, port);
-                
-                //Object stream to write message objects to server
-                sout = new ObjectOutputStream(serverConnection.getOutputStream());
-                
-                //Object stream to read message objects from server
-                cin = new ObjectInputStream(serverConnection.getInputStream());
-                //System.out.println("Created input stream.");
-                
-                System.out.println("Connection success!");
-                
-            }
-            catch(IOException ex)
-            {
-                System.out.println("ERROR: " + ex);
-            }
-
-            //Prompt client for user name
-            System.out.print("Please enter a user name: ");
-            //Read in user input using scanner object
-            Scanner scan = new Scanner(System.in);
-            userName = scan.nextLine();
-            System.out.println();
-            
-            //Function call for client/server menu and functionality
-            userMenu(userName, cin, sout);
-            scan.close();
-            
-            try
-            {
-                serverConnection.close();
-            }
-            catch(IOException ex)
-            {
-                System.out.println("ERROR: " + ex);
-            }
+	public static void main(String[] args) 
+	{
+	    //***VARIABLE STUFF***
+		String userName = null;
+		String server = args[0];
+		int port = Integer.parseInt(args[1]);
+		InetAddress address;
+		Socket serverConnection = null;
+		ObjectInputStream cin = null;
+		ObjectOutputStream sout = null;
+		
+		//If server command line argument is cs1 or cs2 set server name
+		if(server.equals("cs1"))
+		    server = "cs1.utdallas.edu";
+		else if(server.equals("cs2"))
+		    server = "cs2.utdallas.edu";
+		
+		try
+		{
+		    //Get the IP address of the server by the server name
+		    address = InetAddress.getByName(server);
+		    System.out.println("Connecting to: " + server + ":" + port + "....");
+		    //Create socket using server IP address and command line input listening port number
+		    serverConnection = new Socket(address, port);
+		    
+		    //Object stream to write message objects to server
+		    sout = new ObjectOutputStream(serverConnection.getOutputStream());
+		    //Object stream to read message objects from server
+		    cin = new ObjectInputStream(serverConnection.getInputStream());
+		    //System.out.println("Created input stream.");
+		    
+		    System.out.println("Connection success!");
+		    
+		}
+		catch(IOException ex)
+		{
+		    System.out.println("ERROR: " + ex);
+		}
+		
+		//Prompt client for user name
+		System.out.print("Please enter a user name: ");
+		//Read in user input using scanner object
+		Scanner scan = new Scanner(System.in);
+		userName = scan.nextLine();
+		System.out.println();
+		
+		//Function call for client/server menu and functionality
+		userMenu(userName, cin, sout);
+		scan.close();
+		
+		try
+		{
+		    serverConnection.close();
+		}
+		catch(IOException ex)
+		{
+		    System.out.println("ERROR: " + ex);
+		}
     }
 }
