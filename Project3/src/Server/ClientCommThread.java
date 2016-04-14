@@ -82,13 +82,21 @@ public class ClientCommThread implements Runnable {
 	
 	public boolean sendMessageToAnotherUser(MsgCommObj msg) {
 		
-		return msgQueues.sendMessage(msg);
+		if(msgQueues.sendMessage(msg))
+			return true;
+		else {
+			if (msgQueues.newUser(msg.getToUserName()) != -1)
+					return true;
+			else
+				return false;
+		}
 	}
 	
 	public boolean decisionBranch(ObjectInputStream in, ObjectOutputStream out) {
 		
 		MsgCommObj msg = null;
 		String userName = null;
+		boolean sendWelcome = true;
 		
 		try {
 			MsgCommObj reply = null;
@@ -106,6 +114,19 @@ public class ClientCommThread implements Runnable {
 					msgQueues.setConnectionStatus(userIndex, true);
 				}
 				
+				while (userIndex == -2) {
+					reply = new MsgCommObj();
+					reply.setToUserName(msg.getFromUserName());
+					reply.setUserMsg("Username is already in use!");
+					reply.setUserOption( -2 );
+					out.writeObject(reply);
+					
+					msg = (MsgCommObj) in.readObject();
+					
+					userIndex = msgQueues.getUserIndex( msg.getFromUserName() );
+					msgQueues.setConnectionStatus(userIndex, true);
+				}
+				
 				// User name doesn't exist, adding new user
 				if ( userIndex == -1 ) {
 					userIndex = msgQueues.newUser(msg.getFromUserName());
@@ -115,7 +136,8 @@ public class ClientCommThread implements Runnable {
 					if ( userIndex == -1 ) {
 						reply = new MsgCommObj();
 						reply.setToUserName(msg.getFromUserName());
-						reply.setUserMsg("Server user list is full, unable to accept new users. Rejected");
+						reply.setUserMsg("Server user list is full, unable to accept new users. Rejected user "
+									+ msg.getFromUserName());
 						reply.setUserOption( -1 );
 						out.writeObject(reply);
 						System.out.println(LocalDateTime.now() + " " + "Server user list is full, rejected user " 
@@ -123,8 +145,18 @@ public class ClientCommThread implements Runnable {
 						return false;
 					}
 				}
-				break;
 				
+				// User is ready to interact with server, sending welcome message.
+				if (sendWelcome) {
+					reply = new MsgCommObj();
+					reply.setToUserName(msg.getFromUserName());
+					reply.setUserMsg("Welcome to the message server!");
+					reply.setUserOption( 0 );
+					out.writeObject(reply);
+					sendWelcome = false;
+				}
+				break;
+			
 			case 1: 
 				reply = msgQueues.getAllUsers();
 				out.writeObject(reply);
