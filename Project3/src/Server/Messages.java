@@ -2,7 +2,6 @@ package Server;
 
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
-
 import Shared.MsgCommObj;
 
 public class Messages {
