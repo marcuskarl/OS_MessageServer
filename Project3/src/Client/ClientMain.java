@@ -36,7 +36,7 @@ public class ClientMain
 	        			+ "Enter in a new user name: ");
 	        	
 	        	uN = msgScan.nextLine();
-        	} while (uN.length() < 1);
+        	} while (uN.length() < 1);	// Checks for something actually entered and not use a carriage return
         }
         
         msg.setFromUserName(uN);
@@ -93,7 +93,7 @@ public class ClientMain
 	                System.out.print("Enter a number from the menu: ");
 	                //Read input as an integer between 1 and 8, otherwise prompt for input again
 	                inputChecker = menuScan.nextLine();
-            	} while (inputChecker.length() < 1);	// Checks for a valid input from user
+            	} while (inputChecker.length() < 1);	// Checks for something actually entered and not use a carriage return
             	
                 menuChoice = Integer.parseInt(inputChecker);	// Parses user input for an integer
                 System.out.println();
@@ -137,7 +137,7 @@ public class ClientMain
 	                        
 	                        do {
 	                        	toName = msgScan.nextLine();
-	                        } while (toName.length() < 1);
+	                        } while (toName.length() < 1);	// Checks for something actually entered and not use a carriage return
                         }
                         while ( !Character.isAlphabetic((Character)toName.charAt(0)) );
                         
