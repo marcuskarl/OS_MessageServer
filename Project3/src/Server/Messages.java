@@ -8,6 +8,10 @@ import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import Shared.MsgCommObj;
 
+
+// This class has one instance of it initialized and all thread reference the same instance
+// Which allows for all threads to send messages to different users and retrieve messages from other users
+// The instance of this object is passed to each thread upon creation of the thread and can have it's methods called by each thread
 public class Messages {
 	
 	// Creates a private mailbox class for use by Messages
