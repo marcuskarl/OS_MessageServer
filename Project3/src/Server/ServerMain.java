@@ -13,7 +13,7 @@ public class ServerMain {
 	public static void main(String [] args) throws IOException {
 		
 		int listenPortNumber = Integer.parseInt(args[0]);	// Gets port number from input string
-		Messages msgQueues = new Messages();                // Creates message object for each client thread to referen
+		Messages msgQueues = new Messages();                // Creates message object for each client thread to reference
 		ServerSocket serverSocket = null;					// Creates serverSocket variable
 		Socket clientSocket = null;							// Creates clientSocket variable
 		
@@ -34,13 +34,13 @@ public class ServerMain {
 				// Creates thread with msgQueues object and incoming client connection
 				ClientCommThread clientThread = new ClientCommThread(msgQueues, clientSocket);
 				
-				// Starts thread
+				// Starts thread for new connection to handle all task
 				executor.execute(clientThread);
 			}
 		} catch (IOException ex) {	// Catches and prints error
 			System.out.println(ex);
 		} finally {
-			serverSocket.close();	// Closes server error
+			serverSocket.close();	// Closes serverSocket connection
 		}
 	}
 }

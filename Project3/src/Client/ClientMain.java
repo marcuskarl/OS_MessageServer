@@ -48,7 +48,7 @@ public class ClientMain
             msg = (MsgCommObj)cStream.readObject();
             System.out.println(msg.getUserMsg());
             
-            if(msg.getUserOption() == -1)
+            if(msg.getUserOption() == -1 || msg.getUserOption() == -2)
             {
             	msgScan.close();
             	menuScan.close();
