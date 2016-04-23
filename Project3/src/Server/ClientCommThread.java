@@ -99,9 +99,8 @@ public class ClientCommThread implements Runnable {
 				
 					// Case 0 is user just connected
 					case 0:
-						// Gets user name and prints message that user connected
+						// Gets user name of connected user
 						userName = new String( msg.getFromUserName() );
-						System.out.println(LocalDateTime.now() + " " + msg.getFromUserName() + " connected.");
 						
 						// Attempts to get user index for use in mailbox slot, if user is unknown -1 is returned
 						// if user is known but currently connected, -2 is returned

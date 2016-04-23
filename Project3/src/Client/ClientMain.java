@@ -124,7 +124,10 @@ public class ClientMain
                         do
                         {
 	                        System.out.print("Enter message recipients name: ");
-	                        toName = msgScan.nextLine();
+	                        
+	                        do {
+	                        	toName = msgScan.nextLine();
+	                        } while (toName == null);
                         }
                         while ( !Character.isAlphabetic((Character)toName.charAt(0)) );
                         
