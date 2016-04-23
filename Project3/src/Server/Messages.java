@@ -1,3 +1,7 @@
+// Andrew Robinson
+// Marcus Karl
+// Client program that gives functionality to client threads on server; Allows clients to send and receive text messages through server
+
 package Server;
 
 import java.util.LinkedList;

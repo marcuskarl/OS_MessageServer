@@ -1,3 +1,7 @@
+// Andrew Robinson
+// Marcus Karl
+// Client program that gives functionality to client threads on server; Allows clients to send and receive text messages through server
+
 package Server;
 
 import java.io.IOException;
@@ -121,7 +125,7 @@ public class ClientCommThread implements Runnable {
 											+ msg.getFromUserName());
 								reply.setUserOption( -1 );
 								out.writeObject(reply);
-								System.out.println(LocalDateTime.now() + " " + "Server user list is full, rejected user " 
+								System.out.println(LocalDateTime.now() + " Server user list is full, rejected user " 
 											+ msg.getFromUserName() + ".");
 								
 								// Sets exit to true and break out of case then loop
@@ -238,8 +242,8 @@ public class ClientCommThread implements Runnable {
 				}
 			} catch (ClassNotFoundException | IOException ex) {	
 				// Catches and displays errors, also sets client currently connected to false
-				System.out.println(LocalDateTime.now() + userName + " Error: " + ex);
-				System.out.println(LocalDateTime.now() + userName + " connection terminated.");
+				System.out.println(LocalDateTime.now() + " " + userName + " Error: " + ex);
+				System.out.println(LocalDateTime.now() + " " + userName + " connection terminated.");
 				msgQueues.setConnectionStatus(userIndex, false);
 				exit = true;
 			}

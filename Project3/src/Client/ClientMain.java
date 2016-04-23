@@ -1,6 +1,6 @@
 // Andrew Robinson
 // Marcus Karl
-// Client program that gives functionality to client threads on server; Allows clients to send and recieve text messages through server
+// Client program that gives functionality to client threads on server; Allows clients to send and receive text messages through server
 
 package Client;
 
@@ -31,10 +31,12 @@ public class ClientMain
         
         while (!Character.isAlphabetic(uN.charAt(0)))
         {
-        	System.out.print("Your username must start with an alphebetic character. \n"
-        			+ "Enter in a new user name: ");
-        	
-        	uN = msgScan.nextLine();
+        	do {
+	        	System.out.print("Your username must start with an alphebetic character. \n"
+	        			+ "Enter in a new user name: ");
+	        	
+	        	uN = msgScan.nextLine();
+        	} while (uN.length() < 1);
         }
         
         msg.setFromUserName(uN);
@@ -79,13 +81,21 @@ public class ClientMain
             System.out.println("8. Exit.");
             System.out.println();
             
+            String inputChecker = null;
+            
             //Loop to get user menu input
             do
             {
-                //Prompt user for menu choice
-                System.out.print("Enter a number from the menu: ");
-                //Read input as an integer between 1 and 8, otherwise prompt for input again
-                menuChoice = Integer.parseInt(menuScan.nextLine());
+            	menuChoice = -1;	// Sets default value for menuChoice
+            	
+            	do {
+	                //Prompt user for menu choice
+	                System.out.print("Enter a number from the menu: ");
+	                //Read input as an integer between 1 and 8, otherwise prompt for input again
+	                inputChecker = menuScan.nextLine();
+            	} while (inputChecker.length() < 1);	// Checks for a valid input from user
+            	
+                menuChoice = Integer.parseInt(inputChecker);	// Parses user input for an integer
                 System.out.println();
             }
             while(!(menuChoice <= 8 && menuChoice > 0));
@@ -127,7 +137,7 @@ public class ClientMain
 	                        
 	                        do {
 	                        	toName = msgScan.nextLine();
-	                        } while (toName == null);
+	                        } while (toName.length() < 1);
                         }
                         while ( !Character.isAlphabetic((Character)toName.charAt(0)) );
                         
@@ -315,12 +325,14 @@ public class ClientMain
 		    System.out.println("ERROR: " + ex);
 		}
 		
-		//Prompt client for user name
-		System.out.print("Please enter a user name: ");
-		//Read in user input using scanner object
 		Scanner scan = new Scanner(System.in);
-		userName = scan.nextLine();
-		System.out.println();
+		do {
+			//Prompt client for user name
+			System.out.print("Please enter a user name: ");
+			//Read in user input using scanner object
+			userName = scan.nextLine();
+			System.out.println();
+		} while (userName.length() < 1);	// Loops until some is entered
 		
 		//Function call for client/server menu and functionality
 		userMenu(userName, cin, sout);
