@@ -21,8 +21,8 @@ public class Messages {
 		private boolean currentlyConnected = false;			// Used for if user is currently connected, 
 															// true = connected, false = not connected
 		
-		// Semaphore for protection of linked list during message store operations
-		private Semaphore addMessageSemaphore = new Semaphore(1, true);	
+		// Semaphore for protection of linked list during message store or retrieval operations
+		private Semaphore messageAddOrGet = new Semaphore(1, true);	
 		
 		// Constructor initializes linked list and user name
 		public UserMailBox() {
@@ -42,16 +42,19 @@ public class Messages {
 		
 		// Returns the message at the head of the list, if list is empty, null is returned
 		public MsgCommObj getMessage() {
-			return userMessage.poll();
+			messageAddOrGet.acquire();	// Checks that no other threads are attempting to add message
+			MsgCommObj msg = userMessage.poll()
+			messageAddOrGet.release();	// Releases semaphore
+			return msg;
 		}
 		
 		// Adds message to user linked list (user mailbox)
 		public void addMessage(MsgCommObj msg) {
 			msg.setDateTime();			// Sets time stamp to server date and time
 			try {
-				addMessageSemaphore.acquire();	// Checks that no other threads are attempting to add message
+				messageAddOrGet.acquire();	// Checks that no other threads are attempting to add or removes messages
 				userMessage.addLast(msg);		// Adds message to tail of list
-				addMessageSemaphore.release();	// Release semaphore
+				messageAddOrGet.release();	// Release semaphore
 			} catch (InterruptedException ex) {	// Catches and prints error
 				System.out.println(ex);
 			}
