@@ -199,7 +199,7 @@ public class ClientCommThread implements Runnable {
 										+ " sent message to " + msg.getToUserName());
 						}
 						else {
-							// If user was not found, sends reply to client informing of failure
+							// If user was unable to be found, sends reply to client informing of failure
 							reply = new MsgCommObj();
 							reply.setToUserName(msg.getFromUserName());
 							reply.setUserMsg("Unable to send message to user.");
