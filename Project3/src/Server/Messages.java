@@ -1,6 +1,5 @@
 // Andrew Robinson
 // Marcus Karl
-// Client program that gives functionality to client threads on server; Allows clients to send and receive text messages through server
 
 package Server;
 
@@ -79,7 +78,7 @@ public class Messages {
 		}
 	}
 	
-	// Declares an array of user mailboxes
+	// Declares an array of user mailboxes, each known user is given an element to store status and messages
 	private UserMailBox [] userMailBoxes = null;
 	
 	// Sets current known users to 0, variable used to keep track of known users
