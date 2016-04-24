@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
+// ServerMain listens for incomming connections and spawns threads to handle client interactions
 public class ServerMain {
 	
 	public static void main(String [] args) throws IOException {

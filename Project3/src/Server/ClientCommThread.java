@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import Shared.MsgCommObj;
 
+// This class is used as a thread to handle all interactions with the user that is connected
 public class ClientCommThread implements Runnable {
 	
 	// Creates default variables
