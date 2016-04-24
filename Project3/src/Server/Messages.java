@@ -42,9 +42,17 @@ public class Messages {
 		
 		// Returns the message at the head of the list, if list is empty, null is returned
 		public MsgCommObj getMessage() {
-			messageAddOrGet.acquire();	// Checks that no other threads are attempting to add message
-			MsgCommObj msg = userMessage.poll()
-			messageAddOrGet.release();	// Releases semaphore
+			
+			MsgCommObj msg = null; // Variable used for returning message from head of linked list
+			
+			try {
+				messageAddOrGet.acquire();
+				msg = userMessage.poll();
+				messageAddOrGet.release();	// Releases semaphore
+			} catch (InterruptedException ex) {	// Catches and prints error
+				System.out.println(ex);
+			}	// Checks that no other threads are attempting to add message
+			
 			return msg;
 		}
 		
@@ -167,24 +175,24 @@ public class Messages {
 	}
 	
 	// Gets first message from mailbox
-	public MsgCommObj getMessage(int index) {
+	public MsgCommObj getMessage(int userMailboxNum) {
 		
 		// Checks for array out of bounds error
-		if (index >= 0 && index < 100)
+		if (userMailboxNum >= 0 && userMailboxNum < 100)
 			// Returns object from mailbox class
-			return userMailBoxes[index].getMessage();
+			return userMailBoxes[userMailboxNum].getMessage();
 		else
-			// Else returns null if index was out of bounds
+			// Else returns null if userMailboxNum was out of bounds
 			return null;
 	}
 	
 	// Sets current connection status for specified user index
-	public void setConnectionStatus(int index, boolean status) {
+	public void setConnectionStatus(int userMailboxNum, boolean status) {
 		
 		// Checks for array out of bounds error
-		if (index >= 0 && index < 100) {
+		if (userMailboxNum >= 0 && userMailboxNum < 100) {
 			// Sets given connection status for specified user
-			userMailBoxes[index].setConnectionStatus(status);
+			userMailBoxes[userMailboxNum].setConnectionStatus(status);
 		}
 	}
 	
