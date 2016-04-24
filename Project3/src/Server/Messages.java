@@ -74,7 +74,10 @@ public class Messages {
 	// Declares an array of user mailboxes
 	private UserMailBox [] userMailBoxes = null;
 	
-	// Sets current known users to 0
+	// Sets current known users to 0, variable used to keep track of known users
+	// Variable is only incremented when a new user is added, and is never decremented
+	// The value of currentUserIndex will always be the number of known users by the server,
+	// never greater than 100 which is set in the newUser method
 	private int currentUserIndex = 0;
 	
 	// Semaphore for use in adding new users
